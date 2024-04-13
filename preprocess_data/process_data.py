@@ -53,3 +53,4 @@ def split_sentences(data_dir, inputs):
 if __name__ == '__main__':
     traditional_simplified("紅樓夢", "红楼梦")
     split_sentences("红楼梦", 'input.txt')
+

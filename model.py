@@ -14,9 +14,9 @@ from torch.nn import functional as F
 
 @dataclass
 class Config:
-    batch_size: int = 4  # 批量大小
-    block_size: int = 1024  # 模型的输入序列长度
-    vocab_size: int = 35861  # 模型的词汇量大小
+    batch_size: int = 12  # 批量大小
+    block_size: int = 16  # 模型的输入序列长度
+    vocab_size: int = 4189  # 模型的词汇量大小
     n_layer: int = 12  # 模型的Transformer堆叠层数
     n_head: int = 8  # 模型的注意力头数
     n_embd: int = 512  # 模型的嵌入维度
@@ -144,3 +144,26 @@ class GPT(nn.Module):
             logits = self.lm_head(x[:, [-1], :])
             loss = None
         return logits, loss
+
+    @torch.no_grad()
+    def generate(self, idx, temperature=1.0, top_k=None, end_token=0):
+        """
+        根据提示词进行预测
+        """
+        while True:
+            idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
+            logits, _ = self(idx_cond)
+            # 这行代码的作用是对模型输出的 logits 进行温度调节。在文本生成中，温度调节是一种常见的技术，用于控制模型生成文本的多样性。
+            logits = logits[:, -1, :] / temperature
+            # 如果设置了 top_k，则将 logits 中排名靠前的 top_k 个词的概率保留，其余设为负无穷，这样在采样时只有这些词有可能被选中。
+            if top_k is not None:
+                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                logits[logits < v[:, [-1]]] = -float('Inf')
+            probs = F.softmax(logits, dim=-1)
+            # 从多项分布中进行采样1个样本作为输出
+            idx_next = torch.multinomial(probs, num_samples=1)
+            idx = torch.cat((idx, idx_next), dim=1)
+            if idx_next.item() == end_token:
+                break
+
+        return idx

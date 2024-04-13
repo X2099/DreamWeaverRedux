@@ -12,23 +12,26 @@ import torch
 import jieba
 
 
-def get_word_list(meta_file=r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\meta.pkl'):
+def get_word_list(meta_file=r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\meta.pkl', refresh=False):
     """
     对全文分词获得词表
     :return:
     """
-    if os.path.exists(meta_file):
+    if not refresh and os.path.exists(meta_file):
         with open(meta_file, 'rb') as f:
             meta = pickle.load(f)
     else:
         with open(r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\input.txt', 'r', encoding='utf-8') as f:
-            words = jieba.lcut(f.read(), cut_all=False)
+            # words = jieba.lcut(f.read(), cut_all=False) # 不分词，分词cpu没法训练
+            words = f.read()
         words = list(set(words))
         words.sort()
+        vocab_size = len(words)
+        print(f"训练数据共有 {vocab_size} 个 token 。")
         word2index = {word: i for i, word in enumerate(words)}
         index2word = {i: word for i, word in enumerate(words)}
         meta = {
-            'vocab_size': len(words),
+            'vocab_size': vocab_size,
             'index2word': index2word,
             'word2index': word2index,
         }
@@ -37,7 +40,7 @@ def get_word_list(meta_file=r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\
     return meta
 
 
-words_meta = get_word_list()
+words_meta = get_word_list(refresh=False)
 
 
 def encode(word_seq):
@@ -62,14 +65,29 @@ def split_sequence_into_batches(sequence, batch_size, sequence_length):
 
 def load_data(batch_size, block_size):
     with open(r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\input.txt', 'r', encoding='utf-8') as f:
-        words = jieba.lcut(f.read(), cut_all=False)
+        # words = jieba.lcut(f.read(), cut_all=False)
+        words = f.read()
         words = encode(words)
-        words = torch.tensor(words, dtype=torch.long)
-        for i in range(len(words) - block_size):
-            x = torch.stack([words[i:i + block_size] for _ in range(batch_size)])
-            y = torch.stack([words[i + 1:i + 1 + block_size] for _ in range(batch_size)])
-            yield x, y
+        words = torch.tensor(words)
+        # 生成一个大小为 batch_size 的随机整数张量 ix
+        ix = torch.randint(len(words) - block_size, (batch_size,))
+        x = torch.stack([words[i:i + block_size] for i in ix])
+        y = torch.stack([words[i + 1:i + 1 + block_size] for i in ix])
+        yield x, y
+
+
+def export_data_bin_file():
+    """
+    把数据保存成二进制文件
+    """
+    with open(r'D:\Coding\mycode\DreamWeaverRedux\preprocess_data\input.txt', 'r', encoding='utf-8') as f:
+        data = f.read()
+        data_ids = encode(data)
+        data_ids = np.array(data_ids, dtype=np.uint16)
+        data_ids.tofile(os.path.join(os.path.dirname(__file__), 'data.bin'))
 
 
 if __name__ == '__main__':
-    load_data(4, 1024)
+    # export_data_bin_file()
+    end_token = '\n'
+    print(encode(end_token))
