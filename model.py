@@ -16,7 +16,7 @@ from torch.nn import functional as F
 class Config:
     batch_size: int = 12  # 批量大小
     block_size: int = 16  # 模型的输入序列长度
-    vocab_size: int = 4189  # 模型的词汇量大小
+    vocab_size: int = 5908  # 模型的词汇量大小
     n_layer: int = 12  # 模型的Transformer堆叠层数
     n_head: int = 8  # 模型的注意力头数
     n_embd: int = 512  # 模型的嵌入维度
@@ -102,7 +102,7 @@ class Block(nn.Module):
         return x
 
 
-class GPT(nn.Module):
+class NovelGPT(nn.Module):
 
     def __init__(self, config: Config):
         super().__init__()
