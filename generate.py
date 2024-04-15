@@ -27,6 +27,6 @@ def main(prompt: str):
 
 
 if __name__ == '__main__':
-    p = "宝玉如今巴不得各处去逛逛，"
+    p = "宝玉道："
     generated = main(p)
     print(generated)

@@ -116,6 +116,7 @@ class NovelGPT(nn.Module):
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         self.apply(self._init_weights)
+        print(f"本模型参数规模：{round(self.get_num_params() / 10000, 2)} 万个。")
 
     def _init_weights(self, module):
         """
@@ -130,7 +131,7 @@ class NovelGPT(nn.Module):
 
     def forward(self, idx, targets=None):
         b, t = idx.size()
-        pos = torch.arange(0, t, dtype=torch.long)  # 位置
+        pos = torch.arange(0, t, dtype=torch.long)  # 位置，简单粗暴的绝对位置编码
         tok_emb = self.transformer.wte(idx)
         pos_emb = self.transformer.wpe(pos)
         x = self.transformer.drop(tok_emb + pos_emb)
@@ -167,3 +168,18 @@ class NovelGPT(nn.Module):
                 break
 
         return idx
+
+    def get_num_params(self, non_embedding=True):
+        """
+        计算参数的数量
+        """
+        num_params = sum(p.numel() for p in self.parameters())
+        # 通常情况下，位置嵌入是通过固定的数学函数（例如正弦和余弦函数）生成的，而不是通过学习得到的。
+        # 因此，位置嵌入不需要更新或调整，也不会受到梯度的影响。
+        if non_embedding:
+            num_params -= self.transformer.wpe.weight.numel()
+        return num_params
+
+
+if __name__ == '__main__':
+    NovelGPT(Config())
