@@ -7,7 +7,7 @@
 import datetime
 import torch
 from model import Config, NovelGPT
-from data.prepare import encode, decode
+from tools import encode, decode
 
 
 def main(prompt: str):
@@ -17,7 +17,7 @@ def main(prompt: str):
     model = NovelGPT(Config())
     model.eval()
     today = datetime.datetime.today().strftime('%Y%m%d')
-    file_path = f"parameters/parameters-{today}.pth"
+    file_path = f"parameters/parameters-cpu-{today}.pth"
     checkpoint = torch.load(file_path)
     model.load_state_dict(checkpoint)
     end_token = encode('\n')[0]
@@ -27,6 +27,6 @@ def main(prompt: str):
 
 
 if __name__ == '__main__':
-    p = "宝玉道："
+    p = "黛玉笑道："
     generated = main(p)
     print(generated)

@@ -131,7 +131,7 @@ class NovelGPT(nn.Module):
 
     def forward(self, idx, targets=None):
         b, t = idx.size()
-        pos = torch.arange(0, t, dtype=torch.long)  # 位置，简单粗暴的绝对位置编码
+        pos = torch.arange(0, t, dtype=torch.long, device=idx.device)  # 位置，简单粗暴的绝对位置编码
         tok_emb = self.transformer.wte(idx)
         pos_emb = self.transformer.wpe(pos)
         x = self.transformer.drop(tok_emb + pos_emb)
