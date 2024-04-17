@@ -60,7 +60,7 @@ def merge_novels(novel_files, input_file='input.txt'):
                 input_f.write(novel_f.read())
 
 
-def get_word_list(meta_file='../meta.pkl', input_file='input.txt'):
+def get_word_list(meta_file='meta.pkl', input_file='input.txt'):
     """
     对全文分词获得词表
     :return:

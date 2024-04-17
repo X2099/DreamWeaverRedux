@@ -4,6 +4,7 @@
 @Time    : 2024/4/10 12:04
 @Desc    : 
 """
+import os
 import datetime
 
 import torch
@@ -38,12 +39,12 @@ def main():
     today = datetime.datetime.today().strftime('%Y%m%d')
     config = Config()
     model = NovelGPT(config)
-    file_path = f"parameters/parameters-{today}.pth"
-    checkpoint = torch.load(file_path)
-    model.load_state_dict(checkpoint)
+    file_path = f"parameters/parameters-{device}-{today}.pth"
+    if os.path.exists(file_path):
+        checkpoint = torch.load(file_path)
+        model.load_state_dict(checkpoint)
     model.to(device)
     model.train()
-    # optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-8)
     for i in range(1, 2001):
         x, y = get_batch(config.batch_size, config.block_size)
@@ -51,10 +52,11 @@ def main():
         y_hat, loss = model(x, y)
         loss.backward()
         optimizer.step()
-        if i % 100 == 0:
-            file_path = f"parameters/parameters-{today}.pth"
+        if i % 100 == 0 or i == 1:
+            file_path = f"parameters/parameters-{device}-{today}.pth"
             torch.save(model.state_dict(), file_path)
             print(f"{i} loss = ", loss.item())
+            break
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ plt.rcParams['font.family'] = ['Microsoft YaHei']
 plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-with open('meta.pkl', 'rb') as f:
+with open('data/meta.pkl', 'rb') as f:
     meta = pickle.load(f)
 
 
@@ -52,8 +52,7 @@ def plot_training_progress(file='step_loss.pkl'):
     plt.ylabel('损失值')
     plt.grid(True)
     plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.1)
-    plt.savefig('steps_losses.png')
-    # plt.show()
+    plt.savefig('assets/steps_losses.png')
 
 
 if __name__ == '__main__':
