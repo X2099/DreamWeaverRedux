@@ -87,16 +87,41 @@ if __name__ == '__main__':
     pass
     # traditional_simplified("novels/res/紅樓夢", "novels/res/红楼梦", split=True)
     # split_sentences("novels/res/红楼梦", 'novels/红楼梦.txt')
-    #
+
     # traditional_simplified("novels/res/水滸傳", "novels/res/水浒传")
     # split_sentences("novels/res/水浒传", 'novels/水浒传.txt')
-    #
+
     # traditional_simplified("novels/res/西遊記", "novels/res/西游记")
     # split_sentences("novels/res/西游记", 'novels/西游记.txt')
-    #
+
     # traditional_simplified("novels/res/三國演義", "novels/res/三国演义")
     # split_sentences("novels/res/三国演义", 'novels/三国演义.txt')
 
-    # merge_novels(novel_files=['novels/红楼梦.txt', 'novels/水浒传.txt', 'novels/西游记.txt', 'novels/三国演义.txt'])
+    # traditional_simplified("novels/res/封神演义", "novels/res/封神演义S")
+    # split_sentences("novels/res/封神演义S", 'novels/封神演义.txt')
+
+    # traditional_simplified("novels/res/初刻拍案惊奇", "novels/res/初刻拍案惊奇S")
+    # split_sentences("novels/res/初刻拍案惊奇S", 'novels/初刻拍案惊奇.txt')
+
+    # traditional_simplified("novels/res/二刻拍案惊奇", "novels/res/二刻拍案惊奇S")
+    # split_sentences("novels/res/二刻拍案惊奇S", 'novels/二刻拍案惊奇.txt')
+
+    # traditional_simplified("novels/res/聊齋志異", "novels/res/聊斋志异")
+    # split_sentences("novels/res/聊斋志异", 'novels/聊斋志异.txt')
+
+    # traditional_simplified("novels/res/儒林外史", "novels/res/儒林外史S")
+    # split_sentences("novels/res/儒林外史S", 'novels/儒林外史.txt')
+
+    # merge_novels(novel_files=[
+    #     'novels/红楼梦.txt',
+    #     'novels/水浒传.txt',
+    #     'novels/西游记.txt',
+    #     'novels/三国演义.txt',
+    #     'novels/封神演义.txt',
+    #     'novels/初刻拍案惊奇.txt',
+    #     'novels/二刻拍案惊奇.txt',
+    #     'novels/聊斋志异.txt',
+    #     'novels/儒林外史.txt'
+    # ])
 
     get_word_list()

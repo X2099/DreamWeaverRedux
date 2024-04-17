@@ -46,13 +46,14 @@ def plot_training_progress(file='step_loss.pkl'):
     for step, loss in steps_losses:
         steps.append(step)
         losses.append(float(loss))
-    plt.figure(figsize=(15, 6))
+    plt.figure(figsize=(12.5, 6))
     plt.plot(steps, losses, label='损失')
     plt.xlabel('训练步数')
     plt.ylabel('损失值')
     plt.grid(True)
+    plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.1)
     plt.savefig('steps_losses.png')
-    plt.show()
+    # plt.show()
 
 
 if __name__ == '__main__':
