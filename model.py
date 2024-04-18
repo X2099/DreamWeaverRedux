@@ -102,7 +102,7 @@ class Block(nn.Module):
         return x
 
 
-class NovelGPT(nn.Module):
+class AncientChineseGPT(nn.Module):
 
     def __init__(self, config: Config):
         super().__init__()
@@ -183,4 +183,4 @@ class NovelGPT(nn.Module):
 
 
 if __name__ == '__main__':
-    NovelGPT(Config())
+    AncientChineseGPT(Config())

@@ -9,7 +9,7 @@ import datetime
 
 import torch
 import numpy as np
-from model import Config, NovelGPT
+from model import Config, AncientChineseGPT
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 device_type = 'cuda' if 'cuda' in device else 'cpu'
@@ -38,7 +38,7 @@ def get_batch(batch_size, block_size):
 def main():
     today = datetime.datetime.today().strftime('%Y%m%d')
     config = Config()
-    model = NovelGPT(config)
+    model = AncientChineseGPT(config)
     file_path = f"parameters/parameters-{device}-{today}.pth"
     if os.path.exists(file_path):
         checkpoint = torch.load(file_path)

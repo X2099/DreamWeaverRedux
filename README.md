@@ -12,8 +12,8 @@ nanoGPT是一个由Andrej Karpathy开发的开源项目，它提供了一个精�
 ```text
 NovelGPT(
   (transformer): ModuleDict(
-    (wte): Embedding(6823, 512)
-    (wpe): Embedding(6823, 512)
+    (wte): Embedding(9569, 512)
+    (wpe): Embedding(9569, 512)
     (drop): Dropout(p=0.1, inplace=False)
     (h): ModuleList(
       (0-11): 12 x Block(
@@ -35,10 +35,10 @@ NovelGPT(
     )
     (ln_f): LayerNorm()
   )
-  (lm_head): Linear(in_features=512, out_features=6823, bias=False)
+  (lm_head): Linear(in_features=512, out_features=9569, bias=False)
 )
 ```
 
 **三 、这是我训练的成果**
 
-![](assets/steps_losses_20240417.png)
+![](assets/steps_losses2.png)

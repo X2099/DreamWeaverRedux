@@ -38,11 +38,15 @@ def export_data_bin_file():
         data_ids.tofile('train_data.bin')
 
 
-def plot_training_progress(file='step_loss.pkl'):
+def plot_training_progress(file='step_loss1.pkl'):
     steps = []
     losses = []
     with open(file, 'rb') as slf:
         steps_losses = pickle.load(slf)
+    with open('step_loss2.pkl', 'rb') as slf:
+        steps_losses2 = pickle.load(slf)
+    for step, loss in steps_losses2:
+        steps_losses.append((step + 2500, loss))
     for step, loss in steps_losses:
         steps.append(step)
         losses.append(float(loss))
@@ -52,9 +56,9 @@ def plot_training_progress(file='step_loss.pkl'):
     plt.ylabel('损失值')
     plt.grid(True)
     plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.1)
-    plt.savefig('assets/steps_losses.png')
+    plt.savefig('steps_losses2.png')
 
 
 if __name__ == '__main__':
-    export_data_bin_file()
-    # plot_training_progress()
+    # export_data_bin_file()
+    plot_training_progress()

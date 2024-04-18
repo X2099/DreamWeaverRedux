@@ -6,7 +6,7 @@
 """
 import datetime
 import torch
-from model import Config, NovelGPT
+from model import Config, AncientChineseGPT
 from tools import encode, decode
 
 
@@ -14,9 +14,9 @@ def main(prompt: str):
     x = encode(prompt)
     x = torch.tensor(x)
     x = x.reshape(-1, x.shape[0])
-    model = NovelGPT(Config())
+    model = AncientChineseGPT(Config())
     model.eval()
-    today = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+    today = datetime.datetime.today().strftime('%Y%m%d')
     file_path = f"parameters/parameters-cpu-{today}.pth"
     checkpoint = torch.load(file_path)
     model.load_state_dict(checkpoint)
@@ -27,6 +27,6 @@ def main(prompt: str):
 
 
 if __name__ == '__main__':
-    p = "黛玉笑道："
+    p = "孙大圣"
     generated = main(p)
     print(generated)
