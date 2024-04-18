@@ -56,5 +56,5 @@ def plot_training_progress(file='step_loss.pkl'):
 
 
 if __name__ == '__main__':
-    # export_data_bin_file()
-    plot_training_progress()
+    export_data_bin_file()
+    # plot_training_progress()

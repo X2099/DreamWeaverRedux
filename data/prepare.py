@@ -7,57 +7,79 @@
 import os
 import glob
 import pickle
+import re
+
 import opencc
 
 
-def traditional_simplified(traditional_dir, simplified_dir, split=False):
+def traditional_simplified():
     """
     繁体转简体
-    :return:
     """
-    os.makedirs(simplified_dir, exist_ok=True)
+    traditional_root = 'chinese_ancient_books\\traditional'
+    simplified_root = 'chinese_ancient_books\\simplified'
+    os.makedirs(simplified_root, exist_ok=True)
 
     converter = opencc.OpenCC('t2s')
-    traditional_htmls = glob.glob(f'{traditional_dir}\\*.html')
 
-    for traditional_html in traditional_htmls:
-        with open(traditional_html, 'r', encoding='utf-8') as tf:
-            _, file_name = tf.name.split(traditional_dir + '\\')
+    def traditional2simplified_clean(traditional_f, simplified_d):
+        """
+        繁体文本转简体文本并清洗
+        """
+        with open(traditional_f, 'r', encoding='utf-8') as tf:
+            file_name = traditional_f.split('\\')[-1]
             file_name = os.path.splitext(file_name)[0]
             file_name = converter.convert(file_name) + '.txt'
-            simplified_html = os.path.join(simplified_dir, file_name)
+            simplified_f = os.path.join(simplified_d, file_name)
             content = converter.convert(tf.read())
-            content = content.replace('<h2>', '').replace('</h2>', '').replace('<p>', '').replace('</p>', '')
-            with open(simplified_html, 'w', encoding='utf-8') as sf:
-                sf.write(content)
-            if split and file_name.split()[0].isdigit() and int(file_name.split()[0]) >= 80:
-                break
+            content = re.sub(r"<[^>]*>", "", content)
+            sentences = content.split('\n')
+            cleaned_sentences = []
+            for sentence in sentences:
+                cleaned_sentence = re.sub(r'\s+', ' ', sentence)
+                cleaned_sentence = cleaned_sentence.strip()
+                if len(re.findall(r'[\u4e00-\u9fa5]', cleaned_sentence)) < 1:  # 没有汉字
+                    continue
+                if cleaned_sentence:
+                    cleaned_sentences.append(cleaned_sentence + '\n')
+            with open(simplified_f, 'w', encoding='utf-8') as sf:
+                sf.writelines(cleaned_sentences)
+
+    for root, dirs, files in os.walk(traditional_root):
+
+        if root == traditional_root:
+            for file in files:
+                file = os.path.join(root, file)
+                traditional2simplified_clean(file, simplified_root)
+                print(f"繁体转简体：《{file}》 完成。")
+
+        for t_dir_name in dirs:
+            s_dir_name = converter.convert(t_dir_name)
+            simplified_dir = os.path.join(simplified_root, s_dir_name)
+            os.makedirs(simplified_dir, exist_ok=True)
+
+            traditional_dir = os.path.join(traditional_root, t_dir_name)
+            traditional_htmls = glob.glob(f'{traditional_dir}\\*.html')
+            traditional_texts = glob.glob(f'{traditional_dir}\\*.txt')
+            traditional_mds = glob.glob(f'{traditional_dir}\\*.md')
+
+            for traditional_file in traditional_htmls + traditional_texts + traditional_mds:
+                traditional2simplified_clean(traditional_file, simplified_dir)
+            print(f"繁体转简体：《{t_dir_name}》 -> 《{s_dir_name}》 完成。")
 
 
-def split_sentences(data_dir, inputs):
+def merge_texts():
     """
-    分割句子
-    :return:
+    合并所有的数据
     """
-    texts = glob.glob(f'{data_dir}\\*.txt')
-    input_sentences = []
-    for txt_file in texts:
-        with open(txt_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            input_sentences.extend(lines)
-
-    with open(inputs, 'w', encoding='utf-8') as f:
-        f.writelines(input_sentences)
-
-
-def merge_novels(novel_files, input_file='input.txt'):
-    """
-    合并训练数据
-    """
-    with open(input_file, 'w', encoding='utf-8') as input_f:
-        for novel_file in novel_files:
-            with open(novel_file, 'r', encoding='utf-8') as novel_f:
-                input_f.write(novel_f.read())
+    data_dir = 'chinese_ancient_books\\simplified'
+    inputs = "input.txt"
+    with open(inputs, 'w', encoding='utf-8') as input_f:
+        for root, dirs, files in os.walk(data_dir):
+            for file in files:
+                file = os.path.join(root, file)
+                with open(file, 'r', encoding='utf-8') as f:
+                    input_f.writelines(f.readlines())
 
 
 def get_word_list(meta_file='meta.pkl', input_file='input.txt'):
@@ -84,44 +106,5 @@ def get_word_list(meta_file='meta.pkl', input_file='input.txt'):
 
 
 if __name__ == '__main__':
-    pass
-    # traditional_simplified("novels/res/紅樓夢", "novels/res/红楼梦", split=True)
-    # split_sentences("novels/res/红楼梦", 'novels/红楼梦.txt')
-
-    # traditional_simplified("novels/res/水滸傳", "novels/res/水浒传")
-    # split_sentences("novels/res/水浒传", 'novels/水浒传.txt')
-
-    # traditional_simplified("novels/res/西遊記", "novels/res/西游记")
-    # split_sentences("novels/res/西游记", 'novels/西游记.txt')
-
-    # traditional_simplified("novels/res/三國演義", "novels/res/三国演义")
-    # split_sentences("novels/res/三国演义", 'novels/三国演义.txt')
-
-    # traditional_simplified("novels/res/封神演义", "novels/res/封神演义S")
-    # split_sentences("novels/res/封神演义S", 'novels/封神演义.txt')
-
-    # traditional_simplified("novels/res/初刻拍案惊奇", "novels/res/初刻拍案惊奇S")
-    # split_sentences("novels/res/初刻拍案惊奇S", 'novels/初刻拍案惊奇.txt')
-
-    # traditional_simplified("novels/res/二刻拍案惊奇", "novels/res/二刻拍案惊奇S")
-    # split_sentences("novels/res/二刻拍案惊奇S", 'novels/二刻拍案惊奇.txt')
-
-    # traditional_simplified("novels/res/聊齋志異", "novels/res/聊斋志异")
-    # split_sentences("novels/res/聊斋志异", 'novels/聊斋志异.txt')
-
-    # traditional_simplified("novels/res/儒林外史", "novels/res/儒林外史S")
-    # split_sentences("novels/res/儒林外史S", 'novels/儒林外史.txt')
-
-    # merge_novels(novel_files=[
-    #     'novels/红楼梦.txt',
-    #     'novels/水浒传.txt',
-    #     'novels/西游记.txt',
-    #     'novels/三国演义.txt',
-    #     'novels/封神演义.txt',
-    #     'novels/初刻拍案惊奇.txt',
-    #     'novels/二刻拍案惊奇.txt',
-    #     'novels/聊斋志异.txt',
-    #     'novels/儒林外史.txt'
-    # ])
-
+    # merge_texts()
     get_word_list()

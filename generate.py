@@ -16,7 +16,7 @@ def main(prompt: str):
     x = x.reshape(-1, x.shape[0])
     model = NovelGPT(Config())
     model.eval()
-    today = datetime.datetime.today().strftime('%Y%m%d')
+    today = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
     file_path = f"parameters/parameters-cpu-{today}.pth"
     checkpoint = torch.load(file_path)
     model.load_state_dict(checkpoint)
@@ -27,6 +27,6 @@ def main(prompt: str):
 
 
 if __name__ == '__main__':
-    p = "关羽、华雄"
+    p = "黛玉笑道："
     generated = main(p)
     print(generated)

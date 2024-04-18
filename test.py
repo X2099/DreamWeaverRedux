@@ -11,8 +11,6 @@ torch.manual_seed(2099)
 
 e = nn.Embedding(12, 8)
 
-# print(e)
-#
 print(e.weight.shape)
 
 x1 = torch.arange(6)
@@ -35,3 +33,9 @@ print(x.shape)
 q, k, v = x.split(8, dim=-1)
 
 print(q.shape, k.shape, v.shape)
+print(k)
+
+k = k.view(2, 6, 2, 8 // 2).transpose(1, 2)
+
+print(k.shape)
+print(k)
