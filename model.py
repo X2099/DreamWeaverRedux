@@ -183,4 +183,5 @@ class AncientChineseGPT(nn.Module):
 
 
 if __name__ == '__main__':
-    AncientChineseGPT(Config())
+    model = AncientChineseGPT(Config())
+    print(model)
