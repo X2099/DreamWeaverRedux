@@ -41,7 +41,7 @@ AncientChineseGPT(
 
 **三 、这是我训练的成果**
 
-![](assets/steps_losses2.png)
+![](assets/steps_losses_0423.png)
 
 **四、分析自注意力机制**
 

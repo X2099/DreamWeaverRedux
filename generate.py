@@ -20,13 +20,13 @@ def main(prompt: str):
     file_path = f"parameters/parameters-cpu-{today}.pth"
     checkpoint = torch.load(file_path)
     model.load_state_dict(checkpoint)
-    end_token = encode('。')[0]
+    end_token = encode('\n')[0]
     y = model.generate(x, end_token=end_token)
     y = [int(i) for i in y[0]]
     return decode(y)
 
 
 if __name__ == '__main__':
-    p = "孙大圣道："
+    p = "关羽大战孙悟空"
     generated = main(p)
     print(generated)
