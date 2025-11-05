@@ -9,6 +9,8 @@ nanoGPT是一个由Andrej Karpathy开发的开源项目，它提供了一个精�
 
 **二 、这是我的模型**
 
+![模型架构图](assets/AncientChineseGPT.png)
+
 ```text
 AncientChineseGPT(
   (transformer): ModuleDict(
