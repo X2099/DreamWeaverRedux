@@ -27,13 +27,14 @@ class Config:
 class LayerNorm(nn.Module):
     """层归一化"""
 
-    def __init__(self, ndim, bias):
+    def __init__(self, ndim, bias, eps=1e-5):
         super().__init__()
         self.weight = nn.Parameter(torch.ones(ndim))
         self.bias = nn.Parameter(torch.zeros(ndim)) if bias else None
+        self.eps = eps
 
     def forward(self, x):
-        return F.layer_norm(x, self.weight.shape, self.weight, self.bias, 1e-5)
+        return F.layer_norm(x, self.weight.shape, self.weight, self.bias, self.eps)
 
 
 class MultiHeadAttention(nn.Module):
@@ -59,7 +60,8 @@ class MultiHeadAttention(nn.Module):
         q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
         v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
         att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
-        att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float('-inf'))
+        mask = self.bias[:, :, :T, :T]
+        att = att.masked_fill(mask == 0, torch.finfo(att.dtype).min)
         att = F.softmax(att, dim=-1)
         att = self.attn_dropout(att)
         y = att @ v
@@ -97,8 +99,8 @@ class Block(nn.Module):
         self.mlp = MLP(config)  # 前馈神经网络
 
     def forward(self, x):
-        x = x + self.attn(self.ln_1(x))
-        x = x + self.mlp(self.ln_2(x))
+        x = x + self.attn(self.ln_1(x))  # 残差连接
+        x = x + self.mlp(self.ln_2(x))  # 残差连接
         return x
 
 
@@ -109,12 +111,13 @@ class AncientChineseGPT(nn.Module):
         self.config = config
         self.transformer = nn.ModuleDict(dict(
             wte=nn.Embedding(config.vocab_size, config.n_embd),
-            wpe=nn.Embedding(config.vocab_size, config.n_embd),
+            wpe=nn.Embedding(config.block_size, config.n_embd),  # 位置编码长度 = 序列长度
             drop=nn.Dropout(config.dropout),
             h=nn.ModuleList(Block(config) for _ in range(config.n_layer)),
             ln_f=LayerNorm(config.n_embd, bias=config.bias)
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        self.lm_head.weight = self.transformer.wte.weight
         self.apply(self._init_weights)
         print(f"本模型参数规模：{round(self.get_num_params() / 10000, 2)} 万个。")
 
@@ -131,7 +134,7 @@ class AncientChineseGPT(nn.Module):
 
     def forward(self, idx, targets=None):
         b, t = idx.size()
-        pos = torch.arange(0, t, dtype=torch.long, device=idx.device)  # 位置，简单粗暴的绝对位置编码
+        pos = torch.arange(0, t, dtype=torch.long, device=idx.device)  # 简单的绝对位置编码
         # 把序列 ids 转为 embedding 的词向量，wte.weight.shape = (vocab_size, embedding_dim)
         tok_emb = self.transformer.wte(idx)
         pos_emb = self.transformer.wpe(pos)
@@ -148,11 +151,11 @@ class AncientChineseGPT(nn.Module):
         return logits, loss
 
     @torch.no_grad()
-    def generate(self, idx, temperature=1.0, top_k=None, end_token=0):
+    def generate(self, idx, max_new_tokens=100, temperature=1.0, top_k=None, end_token=None):
         """
         根据提示词进行预测
         """
-        while True:
+        for _ in range(max_new_tokens):
             idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
             logits, _ = self(idx_cond)
             # 这行代码的作用是对模型输出的 logits 进行温度调节。在文本生成中，温度调节是一种常见的技术，用于控制模型生成文本的多样性。
@@ -165,9 +168,8 @@ class AncientChineseGPT(nn.Module):
             # 从多项分布中进行采样1个样本作为输出
             idx_next = torch.multinomial(probs, num_samples=1)
             idx = torch.cat((idx, idx_next), dim=1)
-            if idx_next.item() == end_token:
+            if end_token is not None and idx_next.item() == end_token:
                 break
-
         return idx
 
     def get_num_params(self, non_embedding=True):

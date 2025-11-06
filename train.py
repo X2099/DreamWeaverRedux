@@ -35,25 +35,6 @@ def get_batch(batch_size, block_size):
     return x, y
 
 
-@torch.no_grad()
-def estimate_loss(model):
-    """
-    估计损失
-    """
-    out = {}
-    model.eval()
-    for split in ['train', 'val']:
-        losses = torch.zeros(eval_iters)
-        for k in range(eval_iters):
-            X, Y = get_batch(split)
-            with ctx:
-                logits, loss = model(X, Y)
-            losses[k] = loss.item()
-        out[split] = losses.mean()
-    model.train()
-    return out
-
-
 def main():
     today = datetime.datetime.today().strftime('%Y%m%d')
     config = Config()
@@ -75,7 +56,7 @@ def main():
             file_path = f"parameters/parameters-{device}-{today}.pth"
             torch.save(model.state_dict(), file_path)
             print(f"{i} loss = ", loss.item())
-            break
+            # break
 
 
 if __name__ == '__main__':
