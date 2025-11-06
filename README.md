@@ -15,7 +15,7 @@ nanoGPT是一个由Andrej Karpathy开发的开源项目，它提供了一个精�
 AncientChineseGPT(
   (transformer): ModuleDict(
     (wte): Embedding(9569, 512)
-    (wpe): Embedding(9569, 512)
+    (wpe): Embedding(128, 512)
     (drop): Dropout(p=0.1, inplace=False)
     (h): ModuleList(
       (0-11): 12 x Block(
